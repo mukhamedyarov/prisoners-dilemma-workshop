@@ -1,0 +1,24 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  labels:
+    mindbox/traefik: common
+  name: prisoners-dilemma-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`kube-dev.mindbox.ru`) && PathPrefix(`/p-dilemma`)
+      middlewares:
+        - name: strip-p-dilemma
+          namespace: naboltin
+      priority: 100
+      services:
+        - name: prisoners-dilemma-service
+          port: 80
+          scheme: http
+  tls:
+    options:
+      name: agrade-tls-options
+      namespace: traefik

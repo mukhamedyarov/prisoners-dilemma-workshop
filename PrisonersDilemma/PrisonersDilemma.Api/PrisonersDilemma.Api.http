@@ -1,0 +1,6 @@
+@PrisonersDilemma.Api_HostAddress = http://localhost:5246
+
+GET {{PrisonersDilemma.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
