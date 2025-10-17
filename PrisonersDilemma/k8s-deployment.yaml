@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: prisoners-dilemma-api
-        image: mnovikovmindbox/prisoners-dilemma-api:1.3
+        image: ilshatm/prisoners-dilemma-api:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
