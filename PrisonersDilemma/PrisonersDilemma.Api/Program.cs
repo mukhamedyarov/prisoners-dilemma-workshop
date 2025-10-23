@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+using PrisonersDilemma.Api.Application.Interfaces;
+using PrisonersDilemma.Api.Application.Services;
 using PrisonersDilemma.Api.Configuration;
 using PrisonersDilemma.Api.Data;
+using PrisonersDilemma.Api.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,9 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<GameDbContext>(options =>
 	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=PrisonersDilemma.db"));
+
+builder.Services.AddScoped<IGameSessionRepository, GameSessionRepository>();
+builder.Services.AddScoped<IGameService, GameService>();
 
 builder.Services.Configure<ApiKeySettings>(
 	builder.Configuration.GetSection(ApiKeySettings.SectionName));

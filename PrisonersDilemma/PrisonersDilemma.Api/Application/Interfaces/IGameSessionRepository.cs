@@ -1,0 +1,13 @@
+using PrisonersDilemma.Api.Domain.Entities;
+using PrisonersDilemma.Api.Domain.Enums;
+
+namespace PrisonersDilemma.Api.Application.Interfaces;
+
+public interface IGameSessionRepository
+{
+	Task<GameSession?> GetByIdAsync(Guid id);
+	Task<GameSession?> GetLookingForPlayerSessionAsync();
+	Task<GameSession> CreateAsync(GameSession gameSession);
+	Task UpdateAsync(GameSession gameSession);
+	Task<Round?> GetRoundAsync(Guid sessionId, int roundNumber);
+}

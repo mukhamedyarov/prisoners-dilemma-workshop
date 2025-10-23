@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using PrisonersDilemma.Api.Application.DTOs;
+using PrisonersDilemma.Api.Application.Interfaces;
 using PrisonersDilemma.Api.Authorization;
 using PrisonersDilemma.Api.Configuration;
 
@@ -10,10 +12,84 @@ namespace PrisonersDilemma.Api.Controllers;
 [ConditionalAuthorize]
 public class GameController : ControllerBase
 {
-   private readonly ApiKeySettings _apiKeySettings;
-    
-    public GameController(IOptions<ApiKeySettings> apiKeySettings)
-    {
-        _apiKeySettings = apiKeySettings.Value;
-    }
+	private readonly ApiKeySettings _apiKeySettings;
+	private readonly IGameService _gameService;
+
+	public GameController(IOptions<ApiKeySettings> apiKeySettings, IGameService gameService)
+	{
+		_apiKeySettings = apiKeySettings.Value;
+		_gameService = gameService;
+	}
+
+	[HttpPost("start")]
+	public async Task<ActionResult<StartGameResponse>> StartGame([FromBody] StartGameRequest request)
+	{
+		try
+		{
+			var response = await _gameService.StartGameAsync(request);
+			return Ok(response);
+		}
+		catch (Exception ex)
+		{
+			return BadRequest(new { message = ex.Message });
+		}
+	}
+
+	[HttpPost("choice")]
+	public async Task<ActionResult<RoundInfoResponse>> SubmitChoice([FromBody] SubmitChoiceRequest request)
+	{
+		try
+		{
+			var response = await _gameService.SubmitChoiceAsync(request);
+			return Ok(response);
+		}
+		catch (ArgumentException ex)
+		{
+			return BadRequest(new { message = ex.Message });
+		}
+		catch (InvalidOperationException ex)
+		{
+			return BadRequest(new { message = ex.Message });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(500, new { message = ex.Message });
+		}
+	}
+
+	[HttpGet("{sessionId:guid}")]
+	public async Task<ActionResult<GameInfoResponse>> GetGameInfo(Guid sessionId)
+	{
+		try
+		{
+			var response = await _gameService.GetGameInfoAsync(sessionId);
+			return Ok(response);
+		}
+		catch (ArgumentException ex)
+		{
+			return NotFound(new { message = ex.Message });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(500, new { message = ex.Message });
+		}
+	}
+
+	[HttpGet("{sessionId:guid}/round/{roundNumber:int}")]
+	public async Task<ActionResult<RoundInfoResponse>> GetRoundInfo(Guid sessionId, int roundNumber)
+	{
+		try
+		{
+			var response = await _gameService.GetRoundInfoAsync(sessionId, roundNumber);
+			return Ok(response);
+		}
+		catch (ArgumentException ex)
+		{
+			return NotFound(new { message = ex.Message });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(500, new { message = ex.Message });
+		}
+	}
 }
