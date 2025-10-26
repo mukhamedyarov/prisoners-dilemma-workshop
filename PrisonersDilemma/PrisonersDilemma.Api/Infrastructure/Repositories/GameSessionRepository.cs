@@ -121,6 +121,7 @@ public class GameSessionRepository : IGameSessionRepository
 				GameSessionId = newSession.Id
 			};
 
+			_context.Players.Add(player1);
 			_context.GameSessions.Add(newSession);
 
 			await _context.SaveChangesAsync();
