@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using PrisonersDilemma.Api.Domain.Entities;
 
 namespace PrisonersDilemma.Api.Data;
@@ -10,9 +11,9 @@ public class GameDbContext : DbContext
 	}
 
 	public DbSet<GameSession> GameSessions { get; set; }
+	public DbSet<PlayerChoice> PlayerChoices { get; set; }
 	public DbSet<Player> Players { get; set; }
 	public DbSet<Round> Rounds { get; set; }
-	public DbSet<PlayerChoice> PlayerChoices { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -38,7 +39,11 @@ public class GameDbContext : DbContext
 		{
 			entity.HasKey(e => e.Id);
 			entity.Property(e => e.Status).HasConversion<string>();
-			entity.HasIndex(e => new { e.Number, e.GameSessionId }).IsUnique();
+			entity.HasIndex(e => new
+			{
+				e.Number,
+				e.GameSessionId
+			}).IsUnique();
 			entity.HasMany(e => e.Choices).WithOne(e => e.Round).HasForeignKey(e => e.RoundId);
 		});
 

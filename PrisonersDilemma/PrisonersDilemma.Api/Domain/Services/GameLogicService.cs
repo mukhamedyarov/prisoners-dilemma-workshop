@@ -24,15 +24,15 @@ public static class GameLogicService
 
 		var player1Choice = round.Choices.First();
 		var player2Choice = round.Choices.Last();
-		
+
 		var (player1Score, player2Score) = CalculateRoundScore(player1Choice.Choice, player2Choice.Choice);
-		
+
 		player1Choice.Player.Score += player1Score;
 		player2Choice.Player.Score += player2Score;
-		
+
 		round.Status = RoundStatus.Completed;
 		round.CompletedAt = DateTime.UtcNow;
-		
+
 		if (gameSession.CurrentRound >= gameSession.MaxRounds)
 		{
 			gameSession.Status = GameSessionStatus.Completed;
