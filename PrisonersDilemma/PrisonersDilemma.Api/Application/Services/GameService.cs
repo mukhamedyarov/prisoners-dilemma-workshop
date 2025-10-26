@@ -83,13 +83,24 @@ public class GameService : IGameService
 
 	public async Task<StartGameResponse> StartGameAsync(StartGameRequest request)
 	{
+		var existingPlayer = await _gameSessionRepository.GetPlayerByIdAsync(request.PlayerId);
+		if (existingPlayer != null)
+		{
+			return new StartGameResponse
+			{
+				SessionId = existingPlayer.GameSessionId,
+				PlayerId = existingPlayer.Id,
+				PlayerName = existingPlayer.Name
+			};
+		}
+
 		var existingSession = await _gameSessionRepository.GetLookingForPlayerSessionAsync();
 
 		if (existingSession != null)
 		{
 			var player2 = new Player
 			{
-				Id = Guid.NewGuid(),
+				Id = request.PlayerId,
 				Name = request.PlayerName,
 				Score = 0,
 				GameSessionId = existingSession.Id
@@ -130,7 +141,7 @@ public class GameService : IGameService
 
 		var player1 = new Player
 		{
-			Id = Guid.NewGuid(),
+			Id = request.PlayerId,
 			Name = request.PlayerName,
 			Score = 0,
 			GameSessionId = newSession.Id

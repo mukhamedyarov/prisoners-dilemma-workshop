@@ -34,6 +34,12 @@ public class GameSessionRepository : IGameSessionRepository
 			.FirstOrDefaultAsync(gs => gs.Status == GameSessionStatus.LookingForPlayer);
 	}
 
+	public async Task<Player?> GetPlayerByIdAsync(Guid playerId)
+	{
+		return await _context.Players
+			.FirstOrDefaultAsync(p => p.Id == playerId);
+	}
+
 	public async Task<GameSession> CreateAsync(GameSession gameSession)
 	{
 		_context.GameSessions.Add(gameSession);

@@ -7,6 +7,7 @@ public interface IGameSessionRepository
 {
 	Task<GameSession?> GetByIdAsync(Guid id);
 	Task<GameSession?> GetLookingForPlayerSessionAsync();
+	Task<Player?> GetPlayerByIdAsync(Guid playerId);
 	Task<GameSession> CreateAsync(GameSession gameSession);
 	Task UpdateAsync(GameSession gameSession);
 	Task<Round?> GetRoundAsync(Guid sessionId, int roundNumber);
