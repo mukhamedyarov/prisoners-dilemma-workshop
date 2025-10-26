@@ -41,15 +41,15 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 	{
 		return exception switch
 		{
-			MasterKeyValidationException => (HttpStatusCode.Unauthorized, "Invalid or missing master key"),
-			GameNotFoundException => (HttpStatusCode.NotFound, "Game session not found"),
-			RoundNotFoundException => (HttpStatusCode.NotFound, "Round not found"),
-			InvalidGameStateException => (HttpStatusCode.BadRequest, "Invalid game state for this operation"),
-			InvalidRequestException => (HttpStatusCode.BadRequest, "Invalid request parameters"),
-			AuthenticationException => (HttpStatusCode.Unauthorized, "Authentication failed"),
-			ArgumentNullException => (HttpStatusCode.BadRequest, "Required parameter is missing"),
-			ArgumentException => (HttpStatusCode.BadRequest, "Invalid request parameters"),
-			InvalidOperationException => (HttpStatusCode.Conflict, "Operation not allowed in current state"),
+			MasterKeyValidationException e => (HttpStatusCode.Unauthorized, e.Message),
+			GameNotFoundException e => (HttpStatusCode.NotFound, e.Message),
+			RoundNotFoundException e => (HttpStatusCode.NotFound, e.Message),
+			InvalidGameStateException e => (HttpStatusCode.BadRequest, e.Message),
+			InvalidRequestException e => (HttpStatusCode.BadRequest, e.Message),
+			AuthenticationException e => (HttpStatusCode.Unauthorized, e.Message),
+			ArgumentNullException e => (HttpStatusCode.BadRequest, e.Message),
+			ArgumentException e => (HttpStatusCode.BadRequest, e.Message),
+			InvalidOperationException e => (HttpStatusCode.Conflict, e.Message),
 			_ => (HttpStatusCode.InternalServerError, "An unexpected error occurred")
 		};
 	}
