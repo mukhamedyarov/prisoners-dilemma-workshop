@@ -5,7 +5,7 @@
 @Client_Secret = a7b9c3d4e5f6789012345678901234567890abcd
 @Player_ID_1 = 00000000-0000-0000-0000-000000000001
 @Player_ID_2 = eb5d8061-4951-47fb-a52c-5c4eabc141ac
-@Session_ID = 87fe1e55-f768-4d50-945c-d63e9e933dea
+@Session_ID = 00cc208b-eb3a-4a0d-942d-8f8773be07ef
 
 ### Health Check - Liveness
 GET {{PrisonersDilemma_Api_HostAddress}}/health/live
@@ -47,15 +47,17 @@ X-MasterKey: {{X-MasterKey}}
 GET {{PrisonersDilemma_Api_HostAddress}}/api/game/{{Session_ID}}/round/1
 Authorization: {{Bearer_Token}}
 Accept: application/json
+X-MasterKey: {{X-MasterKey}}
 
 ### Game - Submit Choice (Cooperate)
 POST {{PrisonersDilemma_Api_HostAddress}}/api/game/choice
 Content-Type: application/json
 Authorization: {{Bearer_Token}}
+X-MasterKey: {{X-MasterKey}}
 
 {
   "sessionId": "{{Session_ID}}",
-  "playerId": "{{Player_ID}}",
+  "playerId": "{{Player_ID_1}}",
   "roundNumber": 1,
   "choice": "Cooperate"
 }

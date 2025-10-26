@@ -5,6 +5,8 @@ namespace PrisonersDilemma.Api.Application.Interfaces;
 public interface IGameSessionRepository
 {
 	Task<GameSession> CreateAsync(GameSession gameSession);
+	Round AddRound(Round round);
+	PlayerChoice AddPlayerChoice(PlayerChoice playerChoice);
 	Task<GameSession?> GetByIdAsync(Guid id);
 	Task<Player?> GetPlayerByIdAsync(Guid playerId);
 	Task<Round?> GetRoundAsync(Guid sessionId, int roundNumber);

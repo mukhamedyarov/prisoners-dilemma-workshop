@@ -25,6 +25,18 @@ public class GameSessionRepository : IGameSessionRepository
 		await _context.SaveChangesAsync();
 		return gameSession;
 	}
+	
+	public Round AddRound(Round round)
+	{
+		_context.Rounds.Add(round);
+		return round;
+	}
+
+	public PlayerChoice AddPlayerChoice(PlayerChoice playerChoice)
+	{
+		_context.PlayerChoices.Add(playerChoice);
+		return playerChoice;
+	}
 
 	public async Task<GameSession?> GetByIdAsync(Guid id)
 	{

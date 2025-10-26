@@ -132,6 +132,8 @@ public class GameService : IGameService
 				GameSessionId = session.Id,
 				CreatedAt = DateTime.UtcNow
 			};
+
+			_gameSessionRepository.AddRound(round);
 			session.Rounds.Add(round);
 		}
 
@@ -149,6 +151,8 @@ public class GameService : IGameService
 			Choice = choice,
 			CreatedAt = DateTime.UtcNow
 		};
+
+		_gameSessionRepository.AddPlayerChoice(playerChoice);
 
 		round.Choices.Add(playerChoice);
 		player.Choices.Add(playerChoice);
