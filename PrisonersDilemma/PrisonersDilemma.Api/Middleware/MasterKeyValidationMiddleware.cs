@@ -45,6 +45,6 @@ public class MasterKeyValidationMiddleware
 		if (string.IsNullOrEmpty(path))
 			return false;
 
-		return path.StartsWith("/health");
+		return path.StartsWith("/health") || path.StartsWith("/swagger") || path.StartsWith("/openapi");
 	}
 }

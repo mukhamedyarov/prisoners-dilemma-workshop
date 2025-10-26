@@ -17,6 +17,7 @@ In the Prisoner's Dilemma, two players must choose between "Cooperate" or "Defec
 POST /api/game/start
 ```
 Creates a new game session for a player to join.
+Each player can participate only in one game. You cannot start another game with same playerId.
 
 **Request Body:**
 ```json
@@ -49,6 +50,7 @@ Retrieves the current state and information of a game session.
   "player1Name": "Alice",
   "player2Name": "Bob",
   "currentRound": 1,
+  "maxRounds": 100,
   "summary": {
     "Alice": 15,
     "Bob": 12
@@ -128,11 +130,6 @@ dotnet run --project PrisonersDilemma.Api
 ```
 
 The database will be created automatically on first run. Game sessions and results are persisted permanently.
-
-### Run Tests
-```bash
-dotnet test --settings UnitTests.runsettings
-```
 
 Tests use an in-memory database for isolation and performance.
 

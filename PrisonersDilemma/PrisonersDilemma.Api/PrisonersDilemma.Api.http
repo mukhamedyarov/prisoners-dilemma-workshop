@@ -1,12 +1,12 @@
-# @PrisonersDilemma_Api_HostAddress = http://kube-dev.mindbox.ru/p-dilemma
-@PrisonersDilemma_Api_HostAddress = http://localhost:5246
+@PrisonersDilemma_Api_HostAddress = http://kube-dev.mindbox.ru/p-dilemma
+# @PrisonersDilemma_Api_HostAddress = http://localhost:5246
 @Bearer_Token = Bearer your_jwt_token_here
 @X-MasterKey = super-secret-master-key-2024
 @Client_ID = client-001
 @Client_Secret = a7b9c3d4e5f6789012345678901234567890abcd
-@Player_ID_1 = 00000000-0000-0000-0000-000000000001
+@Player_ID_1 = 3fe9447c-840f-46d0-ac68-8551379b3350
 @Player_ID_2 = eb5d8061-4951-47fb-a52c-5c4eabc141ac
-@Session_ID = 0ceaf396-73c3-4609-87af-8d245cc20a12
+@Session_ID = cc6ccca9-4f7f-4314-bc00-cae93768eb4d
 
 ### Health Check - Liveness
 GET {{PrisonersDilemma_Api_HostAddress}}/health/live
@@ -45,7 +45,7 @@ Accept: application/json
 X-MasterKey: {{X-MasterKey}}
 
 ### Game - Get Round Info
-GET {{PrisonersDilemma_Api_HostAddress}}/api/game/{{Session_ID}}/round/3
+GET {{PrisonersDilemma_Api_HostAddress}}/api/game/{{Session_ID}}/round/1
 Authorization: {{Bearer_Token}}
 Accept: application/json
 X-MasterKey: {{X-MasterKey}}
@@ -58,9 +58,9 @@ X-MasterKey: {{X-MasterKey}}
 
 {
   "sessionId": "{{Session_ID}}",
-  "playerId": "{{Player_ID_1}}",
-  "roundNumber": 1,
-  "choice": "Cooperate"
+  "playerId": "{{Player_ID_2}}",
+  "roundNumber": 3,
+  "choice": "Defect"
 }
 
 ### Game - Submit Choice (Defect)

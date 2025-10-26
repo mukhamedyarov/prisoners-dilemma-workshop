@@ -28,7 +28,8 @@ public class GameService : IGameService
 		{
 			SessionId = session.Id,
 			Status = session.Status.ToString(),
-			CurrentRound = session.CurrentRound
+			CurrentRound = session.CurrentRound,
+			MaxRounds = session.MaxRounds
 		};
 
 		if (session.Players.Count > 0)
