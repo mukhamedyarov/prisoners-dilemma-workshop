@@ -45,10 +45,6 @@ public class MasterKeyValidationMiddleware
 		if (string.IsNullOrEmpty(path))
 			return false;
 
-		return path.Equals("/health", StringComparison.OrdinalIgnoreCase) ||
-		       path.Equals("/healthz", StringComparison.OrdinalIgnoreCase) ||
-		       path.Equals("/ready", StringComparison.OrdinalIgnoreCase) ||
-		       path.Equals("/readiness", StringComparison.OrdinalIgnoreCase) ||
-		       path.StartsWith("/health/", StringComparison.OrdinalIgnoreCase);
+		return path.StartsWith("/health");
 	}
 }
