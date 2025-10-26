@@ -38,6 +38,8 @@ spec:
           value: "Data Source=/app/data/PrisonersDilemma.db"
         - name: Jwt__Enabled
           value: "false"
+        - name: GAME_ROUNDS_COUNT
+          value: "100"
         resources:
           requests:
             memory: "128Mi"
