@@ -47,9 +47,9 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 			InvalidGameStateException e => (HttpStatusCode.BadRequest, e.Message),
 			InvalidRequestException e => (HttpStatusCode.BadRequest, e.Message),
 			AuthenticationException e => (HttpStatusCode.Unauthorized, e.Message),
+			ConcurrencyConflictException e => (HttpStatusCode.Conflict, e.Message),
 			ArgumentNullException e => (HttpStatusCode.BadRequest, e.Message),
 			ArgumentException e => (HttpStatusCode.BadRequest, e.Message),
-			InvalidOperationException e => (HttpStatusCode.Conflict, e.Message),
 			_ => (HttpStatusCode.InternalServerError, "An unexpected error occurred")
 		};
 	}

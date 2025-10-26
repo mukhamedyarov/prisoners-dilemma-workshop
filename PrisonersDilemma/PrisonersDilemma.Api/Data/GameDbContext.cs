@@ -22,6 +22,7 @@ public class GameDbContext : DbContext
 		{
 			entity.HasKey(e => e.Id);
 			entity.Property(e => e.Status).HasConversion<string>();
+			entity.HasIndex(e => e.Status);
 			entity.HasMany(e => e.Players).WithOne(e => e.GameSession).HasForeignKey(e => e.GameSessionId);
 			entity.HasMany(e => e.Rounds).WithOne(e => e.GameSession).HasForeignKey(e => e.GameSessionId);
 		});
@@ -37,6 +38,7 @@ public class GameDbContext : DbContext
 		{
 			entity.HasKey(e => e.Id);
 			entity.Property(e => e.Status).HasConversion<string>();
+			entity.HasIndex(e => new { e.Number, e.GameSessionId }).IsUnique();
 			entity.HasMany(e => e.Choices).WithOne(e => e.Round).HasForeignKey(e => e.RoundId);
 		});
 

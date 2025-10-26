@@ -15,7 +15,7 @@ public class GameService : IGameService
 	public GameService(IGameSessionRepository gameSessionRepository, IConfiguration configuration)
 	{
 		_gameSessionRepository = gameSessionRepository;
-		_maxRounds = int.Parse(configuration.GetValue<string>("GAME_ROUNDS_COUNT") ?? "10");
+		_maxRounds = int.Parse(configuration.GetValue<string>("GAME_ROUNDS_COUNT") ?? "150");
 	}
 
 	public async Task<GameInfoResponse> GetGameInfoAsync(Guid sessionId)
@@ -95,68 +95,13 @@ public class GameService : IGameService
 			};
 		}
 
-		var existingSession = await _gameSessionRepository.GetLookingForPlayerSessionAsync();
-
-		if (existingSession != null)
-		{
-			var player2 = new Player
-			{
-				Id = request.PlayerId,
-				Name = request.PlayerName,
-				Score = 0,
-				GameSessionId = existingSession.Id
-			};
-
-			existingSession.Players.Add(player2);
-			existingSession.Status = GameSessionStatus.Active;
-			existingSession.CurrentRound = 1;
-
-			var firstRound = new Round
-			{
-				Id = Guid.NewGuid(),
-				Number = 1,
-				Status = RoundStatus.InProgress,
-				GameSessionId = existingSession.Id,
-				CreatedAt = DateTime.UtcNow
-			};
-			existingSession.Rounds.Add(firstRound);
-
-			await _gameSessionRepository.UpdateAsync(existingSession);
-
-			return new StartGameResponse
-			{
-				SessionId = existingSession.Id,
-				PlayerId = player2.Id,
-				PlayerName = player2.Name
-			};
-		}
-
-		var newSession = new GameSession
-		{
-			Id = Guid.NewGuid(),
-			Status = GameSessionStatus.LookingForPlayer,
-			CurrentRound = 0,
-			MaxRounds = _maxRounds,
-			CreatedAt = DateTime.UtcNow
-		};
-
-		var player1 = new Player
-		{
-			Id = request.PlayerId,
-			Name = request.PlayerName,
-			Score = 0,
-			GameSessionId = newSession.Id
-		};
-
-		newSession.Players.Add(player1);
-
-		await _gameSessionRepository.CreateAsync(newSession);
+		var (session, player) = await _gameSessionRepository.StartGameAtomicAsync(request.PlayerId, request.PlayerName, _maxRounds);
 
 		return new StartGameResponse
 		{
-			SessionId = newSession.Id,
-			PlayerId = player1.Id,
-			PlayerName = player1.Name
+			SessionId = session.Id,
+			PlayerId = player.Id,
+			PlayerName = player.Name
 		};
 	}
 
