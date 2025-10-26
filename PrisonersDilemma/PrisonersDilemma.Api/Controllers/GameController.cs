@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+
 using PrisonersDilemma.Api.Application.DTOs;
 using PrisonersDilemma.Api.Application.Interfaces;
 using PrisonersDilemma.Api.Authorization;
 using PrisonersDilemma.Api.Configuration;
+using PrisonersDilemma.Api.Exceptions;
 
 namespace PrisonersDilemma.Api.Controllers;
 
@@ -21,45 +23,22 @@ public class GameController : ControllerBase
 		_gameService = gameService;
 	}
 
-	[HttpPost("start")]
-	public async Task<ActionResult<StartGameResponse>> StartGame([FromBody] StartGameRequest request)
-	{
-		try
-		{
-			var response = await _gameService.StartGameAsync(request);
-			return Ok(response);
-		}
-		catch (Exception ex)
-		{
-			return BadRequest(new { message = ex.Message });
-		}
-	}
-
-	[HttpPost("choice")]
-	public async Task<ActionResult<RoundInfoResponse>> SubmitChoice([FromBody] SubmitChoiceRequest request)
-	{
-		try
-		{
-			var response = await _gameService.SubmitChoiceAsync(request);
-			return Ok(response);
-		}
-		catch (ArgumentException ex)
-		{
-			return BadRequest(new { message = ex.Message });
-		}
-		catch (InvalidOperationException ex)
-		{
-			return BadRequest(new { message = ex.Message });
-		}
-		catch (Exception ex)
-		{
-			return StatusCode(500, new { message = ex.Message });
-		}
-	}
-
 	[HttpGet("{sessionId:guid}")]
 	public async Task<ActionResult<GameInfoResponse>> GetGameInfo(Guid sessionId)
 	{
+		// Validate X-MasterKey header
+		if (!Request.Headers.TryGetValue("X-MasterKey", out var masterKeyHeader) || 
+		    string.IsNullOrEmpty(masterKeyHeader.FirstOrDefault()))
+		{
+			throw new MasterKeyValidationException("X-MasterKey header is required");
+		}
+
+		var providedKey = masterKeyHeader.First()!;
+		if (providedKey != _apiKeySettings.MasterKey)
+		{
+			throw new MasterKeyValidationException("Invalid master key");
+		}
+
 		try
 		{
 			var response = await _gameService.GetGameInfoAsync(sessionId);
@@ -67,11 +46,17 @@ public class GameController : ControllerBase
 		}
 		catch (ArgumentException ex)
 		{
-			return NotFound(new { message = ex.Message });
+			return NotFound(new
+			{
+				message = ex.Message
+			});
 		}
 		catch (Exception ex)
 		{
-			return StatusCode(500, new { message = ex.Message });
+			return StatusCode(500, new
+			{
+				message = ex.Message
+			});
 		}
 	}
 
@@ -85,11 +70,65 @@ public class GameController : ControllerBase
 		}
 		catch (ArgumentException ex)
 		{
-			return NotFound(new { message = ex.Message });
+			return NotFound(new
+			{
+				message = ex.Message
+			});
 		}
 		catch (Exception ex)
 		{
-			return StatusCode(500, new { message = ex.Message });
+			return StatusCode(500, new
+			{
+				message = ex.Message
+			});
+		}
+	}
+
+	[HttpPost("start")]
+	public async Task<ActionResult<StartGameResponse>> StartGame([FromBody] StartGameRequest request)
+	{
+		try
+		{
+			var response = await _gameService.StartGameAsync(request);
+			return Ok(response);
+		}
+		catch (Exception ex)
+		{
+			return BadRequest(new
+			{
+				message = ex.Message
+			});
+		}
+	}
+
+	[HttpPost("choice")]
+	public async Task<ActionResult<RoundInfoResponse>> SubmitChoice([FromBody] SubmitChoiceRequest request)
+	{
+		try
+		{
+			var response = await _gameService.SubmitChoiceAsync(request);
+			return Ok(response);
+		}
+		catch (ArgumentException ex)
+		{
+			return BadRequest(new
+			{
+				message = ex.Message
+			});
+		}
+		catch (InvalidOperationException ex)
+		{
+			return BadRequest(new
+			{
+				message = ex.Message
+			});
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(500, new
+			{
+				message = ex.Message
+			});
 		}
 	}
 }

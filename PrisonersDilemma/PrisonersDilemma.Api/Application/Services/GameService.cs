@@ -1,7 +1,5 @@
-using Microsoft.Extensions.Options;
 using PrisonersDilemma.Api.Application.DTOs;
 using PrisonersDilemma.Api.Application.Interfaces;
-using PrisonersDilemma.Api.Configuration;
 using PrisonersDilemma.Api.Domain.Entities;
 using PrisonersDilemma.Api.Domain.Enums;
 using PrisonersDilemma.Api.Domain.Services;
@@ -19,10 +17,74 @@ public class GameService : IGameService
 		_maxRounds = int.Parse(configuration.GetValue<string>("GAME_ROUNDS_COUNT") ?? "10");
 	}
 
+	public async Task<GameInfoResponse> GetGameInfoAsync(Guid sessionId)
+	{
+		var session = await _gameSessionRepository.GetByIdAsync(sessionId);
+		if (session == null)
+			throw new ArgumentException("Game session not found");
+
+		var response = new GameInfoResponse
+		{
+			SessionId = session.Id,
+			Status = session.Status.ToString(),
+			CurrentRound = session.CurrentRound
+		};
+
+		if (session.Players.Count > 0)
+		{
+			response.Player1Name = session.Players[0].Name;
+			response.Summary[session.Players[0].Name] = session.Players[0].Score;
+		}
+
+		if (session.Players.Count > 1)
+		{
+			response.Player2Name = session.Players[1].Name;
+			response.Summary[session.Players[1].Name] = session.Players[1].Score;
+		}
+
+		return response;
+	}
+
+	public async Task<RoundInfoResponse> GetRoundInfoAsync(Guid sessionId, int roundNumber)
+	{
+		var session = await _gameSessionRepository.GetByIdAsync(sessionId);
+		if (session == null)
+			throw new ArgumentException("Game session not found");
+
+		var round = await _gameSessionRepository.GetRoundAsync(sessionId, roundNumber);
+		if (round == null)
+			throw new ArgumentException("Round not found");
+
+		var response = new RoundInfoResponse
+		{
+			SessionId = sessionId,
+			RoundNumber = roundNumber,
+			Status = round.Status.ToString()
+		};
+
+		if (round.Status == RoundStatus.Completed)
+		{
+			response.Outcome = new Dictionary<string, string>();
+			response.Summary = new Dictionary<string, int>();
+
+			foreach (var choice in round.Choices)
+			{
+				response.Outcome[choice.Player.Name] = choice.Choice.ToString();
+			}
+
+			foreach (var player in session.Players)
+			{
+				response.Summary[player.Name] = player.Score;
+			}
+		}
+
+		return response;
+	}
+
 	public async Task<StartGameResponse> StartGameAsync(StartGameRequest request)
 	{
 		var existingSession = await _gameSessionRepository.GetLookingForPlayerSessionAsync();
-		
+
 		if (existingSession != null)
 		{
 			var player2 = new Player
@@ -32,11 +94,11 @@ public class GameService : IGameService
 				Score = 0,
 				GameSessionId = existingSession.Id
 			};
-			
+
 			existingSession.Players.Add(player2);
 			existingSession.Status = GameSessionStatus.Active;
 			existingSession.CurrentRound = 1;
-			
+
 			var firstRound = new Round
 			{
 				Id = Guid.NewGuid(),
@@ -46,9 +108,9 @@ public class GameService : IGameService
 				CreatedAt = DateTime.UtcNow
 			};
 			existingSession.Rounds.Add(firstRound);
-			
+
 			await _gameSessionRepository.UpdateAsync(existingSession);
-			
+
 			return new StartGameResponse
 			{
 				SessionId = existingSession.Id,
@@ -56,7 +118,7 @@ public class GameService : IGameService
 				PlayerName = player2.Name
 			};
 		}
-		
+
 		var newSession = new GameSession
 		{
 			Id = Guid.NewGuid(),
@@ -65,7 +127,7 @@ public class GameService : IGameService
 			MaxRounds = _maxRounds,
 			CreatedAt = DateTime.UtcNow
 		};
-		
+
 		var player1 = new Player
 		{
 			Id = Guid.NewGuid(),
@@ -73,11 +135,11 @@ public class GameService : IGameService
 			Score = 0,
 			GameSessionId = newSession.Id
 		};
-		
+
 		newSession.Players.Add(player1);
-		
+
 		await _gameSessionRepository.CreateAsync(newSession);
-		
+
 		return new StartGameResponse
 		{
 			SessionId = newSession.Id,
@@ -152,79 +214,15 @@ public class GameService : IGameService
 		{
 			response.Outcome = new Dictionary<string, string>();
 			response.Summary = new Dictionary<string, int>();
-			
+
 			foreach (var c in round.Choices)
 			{
 				response.Outcome[c.Player.Name] = c.Choice.ToString();
 			}
-			
+
 			foreach (var p in session.Players)
 			{
 				response.Summary[p.Name] = p.Score;
-			}
-		}
-
-		return response;
-	}
-
-	public async Task<GameInfoResponse> GetGameInfoAsync(Guid sessionId)
-	{
-		var session = await _gameSessionRepository.GetByIdAsync(sessionId);
-		if (session == null)
-			throw new ArgumentException("Game session not found");
-
-		var response = new GameInfoResponse
-		{
-			SessionId = session.Id,
-			Status = session.Status.ToString(),
-			CurrentRound = session.CurrentRound
-		};
-
-		if (session.Players.Count > 0)
-		{
-			response.Player1Name = session.Players[0].Name;
-			response.Summary[session.Players[0].Name] = session.Players[0].Score;
-		}
-
-		if (session.Players.Count > 1)
-		{
-			response.Player2Name = session.Players[1].Name;
-			response.Summary[session.Players[1].Name] = session.Players[1].Score;
-		}
-
-		return response;
-	}
-
-	public async Task<RoundInfoResponse> GetRoundInfoAsync(Guid sessionId, int roundNumber)
-	{
-		var session = await _gameSessionRepository.GetByIdAsync(sessionId);
-		if (session == null)
-			throw new ArgumentException("Game session not found");
-
-		var round = await _gameSessionRepository.GetRoundAsync(sessionId, roundNumber);
-		if (round == null)
-			throw new ArgumentException("Round not found");
-
-		var response = new RoundInfoResponse
-		{
-			SessionId = sessionId,
-			RoundNumber = roundNumber,
-			Status = round.Status.ToString()
-		};
-
-		if (round.Status == RoundStatus.Completed)
-		{
-			response.Outcome = new Dictionary<string, string>();
-			response.Summary = new Dictionary<string, int>();
-			
-			foreach (var choice in round.Choices)
-			{
-				response.Outcome[choice.Player.Name] = choice.Choice.ToString();
-			}
-			
-			foreach (var player in session.Players)
-			{
-				response.Summary[player.Name] = player.Score;
 			}
 		}
 
