@@ -9,6 +9,7 @@ using PrisonersDilemma.Api.Application.Services;
 using PrisonersDilemma.Api.Configuration;
 using PrisonersDilemma.Api.Data;
 using PrisonersDilemma.Api.Infrastructure.Repositories;
+using PrisonersDilemma.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +67,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseExceptionHandler();
+
+app.UseMiddleware<MasterKeyValidationMiddleware>();
 
 app.MapOpenApi();
 app.UseSwaggerUI(options =>
