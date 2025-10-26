@@ -17,6 +17,14 @@ public class MasterKeyValidationMiddleware
 
 	public async Task InvokeAsync(HttpContext context)
 	{
+		var path = context.Request.Path.Value?.ToLowerInvariant();
+		
+		if (IsHealthCheckOrReadinessProbe(path))
+		{
+			await _next(context);
+			return;
+		}
+
 		if (!context.Request.Headers.TryGetValue("X-MasterKey", out var masterKeyHeader) ||
 		    string.IsNullOrEmpty(masterKeyHeader.FirstOrDefault()))
 		{
@@ -30,5 +38,17 @@ public class MasterKeyValidationMiddleware
 		}
 
 		await _next(context);
+	}
+
+	private static bool IsHealthCheckOrReadinessProbe(string? path)
+	{
+		if (string.IsNullOrEmpty(path))
+			return false;
+
+		return path.Equals("/health", StringComparison.OrdinalIgnoreCase) ||
+		       path.Equals("/healthz", StringComparison.OrdinalIgnoreCase) ||
+		       path.Equals("/ready", StringComparison.OrdinalIgnoreCase) ||
+		       path.Equals("/readiness", StringComparison.OrdinalIgnoreCase) ||
+		       path.StartsWith("/health/", StringComparison.OrdinalIgnoreCase);
 	}
 }
