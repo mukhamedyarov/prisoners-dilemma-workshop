@@ -17,7 +17,7 @@ In the Prisoner's Dilemma, two players must choose between "Cooperate" or "Defec
 POST /api/game/start
 ```
 Creates a new game session for a player to join.
-Each player can participate only in one game. You cannot start another game with same playerId.
+Each player(with unique player id) can participate only in one game. You cannot start another game with same playerId.
 
 **Request Body:**
 ```json
