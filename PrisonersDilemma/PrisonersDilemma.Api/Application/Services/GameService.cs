@@ -3,6 +3,7 @@ using PrisonersDilemma.Api.Application.Interfaces;
 using PrisonersDilemma.Api.Domain.Entities;
 using PrisonersDilemma.Api.Domain.Enums;
 using PrisonersDilemma.Api.Domain.Services;
+using PrisonersDilemma.Api.Exceptions;
 
 namespace PrisonersDilemma.Api.Application.Services;
 
@@ -21,7 +22,7 @@ public class GameService : IGameService
 	{
 		var session = await _gameSessionRepository.GetByIdAsync(sessionId);
 		if (session == null)
-			throw new ArgumentException("Game session not found");
+			throw new GameNotFoundException("Game session not found");
 
 		var response = new GameInfoResponse
 		{
@@ -49,11 +50,11 @@ public class GameService : IGameService
 	{
 		var session = await _gameSessionRepository.GetByIdAsync(sessionId);
 		if (session == null)
-			throw new ArgumentException("Game session not found");
+			throw new GameNotFoundException("Game session not found");
 
 		var round = await _gameSessionRepository.GetRoundAsync(sessionId, roundNumber);
 		if (round == null)
-			throw new ArgumentException("Round not found");
+			throw new RoundNotFoundException("Round not found");
 
 		var response = new RoundInfoResponse
 		{
@@ -163,17 +164,17 @@ public class GameService : IGameService
 	{
 		var session = await _gameSessionRepository.GetByIdAsync(request.SessionId);
 		if (session == null)
-			throw new ArgumentException("Game session not found");
+			throw new GameNotFoundException("Game session not found");
 
 		if (session.Status != GameSessionStatus.Active)
-			throw new InvalidOperationException("Game session is not active");
+			throw new InvalidGameStateException("Game session is not active");
 
 		var player = session.Players.FirstOrDefault(p => p.Id == request.PlayerId);
 		if (player == null)
-			throw new ArgumentException("Player not found in this session");
+			throw new InvalidRequestException("Player not found in this session");
 
 		if (request.RoundNumber != session.CurrentRound)
-			throw new ArgumentException("Invalid round number");
+			throw new InvalidRequestException("Invalid round number");
 
 		var round = session.Rounds.FirstOrDefault(r => r.Number == request.RoundNumber);
 		if (round == null)
@@ -190,10 +191,10 @@ public class GameService : IGameService
 		}
 
 		if (round.Choices.Any(c => c.PlayerId == request.PlayerId))
-			throw new InvalidOperationException("Player has already made a choice for this round");
+			throw new InvalidGameStateException("Player has already made a choice for this round");
 
 		if (!Enum.TryParse<Choice>(request.Choice, true, out var choice))
-			throw new ArgumentException("Invalid choice");
+			throw new InvalidRequestException("Invalid choice");
 
 		var playerChoice = new PlayerChoice
 		{

@@ -16,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddDbContext<GameDbContext>(options =>
 	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=PrisonersDilemma.db"));
