@@ -72,6 +72,8 @@ public class GameSessionRepository : IGameSessionRepository
 					GameSessionId = existingSession.Id
 				};
 
+				_context.Players.Add(player2);
+
 				existingSession.Players.Add(player2);
 				existingSession.Status = GameSessionStatus.Active;
 				existingSession.CurrentRound = 1;
@@ -84,6 +86,8 @@ public class GameSessionRepository : IGameSessionRepository
 					GameSessionId = existingSession.Id,
 					CreatedAt = DateTime.UtcNow
 				};
+				_context.Rounds.Add(firstRound);
+				
 				existingSession.Rounds.Add(firstRound);
 
 				await _context.SaveChangesAsync();
