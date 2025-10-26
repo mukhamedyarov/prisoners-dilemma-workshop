@@ -26,18 +26,7 @@ public class GameController : ControllerBase
 	[HttpGet("{sessionId:guid}")]
 	public async Task<ActionResult<GameInfoResponse>> GetGameInfo(Guid sessionId)
 	{
-		// Validate X-MasterKey header
-		if (!Request.Headers.TryGetValue("X-MasterKey", out var masterKeyHeader) || 
-		    string.IsNullOrEmpty(masterKeyHeader.FirstOrDefault()))
-		{
-			throw new MasterKeyValidationException("X-MasterKey header is required");
-		}
-
-		var providedKey = masterKeyHeader.First()!;
-		if (providedKey != _apiKeySettings.MasterKey)
-		{
-			throw new MasterKeyValidationException("Invalid master key");
-		}
+		CheckMasterKey();
 
 		try
 		{
@@ -63,6 +52,8 @@ public class GameController : ControllerBase
 	[HttpGet("{sessionId:guid}/round/{roundNumber:int}")]
 	public async Task<ActionResult<RoundInfoResponse>> GetRoundInfo(Guid sessionId, int roundNumber)
 	{
+		CheckMasterKey();
+
 		try
 		{
 			var response = await _gameService.GetRoundInfoAsync(sessionId, roundNumber);
@@ -87,6 +78,8 @@ public class GameController : ControllerBase
 	[HttpPost("start")]
 	public async Task<ActionResult<StartGameResponse>> StartGame([FromBody] StartGameRequest request)
 	{
+		CheckMasterKey();
+
 		try
 		{
 			var response = await _gameService.StartGameAsync(request);
@@ -104,6 +97,8 @@ public class GameController : ControllerBase
 	[HttpPost("choice")]
 	public async Task<ActionResult<RoundInfoResponse>> SubmitChoice([FromBody] SubmitChoiceRequest request)
 	{
+		CheckMasterKey();
+
 		try
 		{
 			var response = await _gameService.SubmitChoiceAsync(request);
@@ -129,6 +124,23 @@ public class GameController : ControllerBase
 			{
 				message = ex.Message
 			});
+		}
+	}
+
+	private void CheckMasterKey()
+	{
+
+		// Validate X-MasterKey header
+		if (!Request.Headers.TryGetValue("X-MasterKey", out var masterKeyHeader) ||
+		    string.IsNullOrEmpty(masterKeyHeader.FirstOrDefault()))
+		{
+			throw new MasterKeyValidationException("X-MasterKey header is required");
+		}
+
+		var providedKey = masterKeyHeader.First()!;
+		if (providedKey != _apiKeySettings.MasterKey)
+		{
+			throw new MasterKeyValidationException("Invalid master key");
 		}
 	}
 }
