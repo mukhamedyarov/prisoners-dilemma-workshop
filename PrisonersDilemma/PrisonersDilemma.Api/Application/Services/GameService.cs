@@ -134,7 +134,6 @@ public class GameService : IGameService
 			};
 
 			_gameSessionRepository.AddRound(round);
-			session.Rounds.Add(round);
 		}
 
 		if (round.Choices.Any(c => c.PlayerId == request.PlayerId))
@@ -154,12 +153,17 @@ public class GameService : IGameService
 
 		_gameSessionRepository.AddPlayerChoice(playerChoice);
 
-		round.Choices.Add(playerChoice);
-		player.Choices.Add(playerChoice);
-
 		if (round.Choices.Count == 2)
 		{
 			GameLogicService.ProcessRoundCompletion(round, session);
+			_gameSessionRepository.AddRound(new Round
+			{
+				Id = Guid.NewGuid(),
+				Number = round.Number + 1,
+				Status = RoundStatus.InProgress,
+				GameSessionId = session.Id,
+				CreatedAt = DateTime.UtcNow
+			});
 		}
 
 		await _gameSessionRepository.UpdateAsync(session);
