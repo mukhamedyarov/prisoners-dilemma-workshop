@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace PrisonersDilemma.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/health")]
 public class HealthController : ControllerBase
 {
 	[HttpGet("live")]
