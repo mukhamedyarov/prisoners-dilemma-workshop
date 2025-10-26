@@ -70,7 +70,7 @@ Authorization: {{Bearer_Token}}
 
 {
   "sessionId": "{{Session_ID}}",
-  "playerId": "{{Player_ID}}",
+  "playerId": "{{Player_ID_1}}",
   "roundNumber": 1,
   "choice": "Defect"
 }
